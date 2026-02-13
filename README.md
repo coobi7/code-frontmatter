@@ -96,7 +96,7 @@ class User: ...
 
 The MCP Server exposes the following tools to your AI assistant:
 
-- **`cfm_scan(directory)`**: Scans your project and returns a structured index of all CFM headers.
+- **`cfm_read(directory)`**: Scans your project and returns a structured index of all CFM headers.
 - **`cfm_search(query)`**: Search for files by keyword, role, or domain without reading full contents.
 - **`cfm_register_language(name, config)`**: Teach CFM how to parse headers for a new language on the fly.
 

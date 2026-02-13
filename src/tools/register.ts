@@ -60,21 +60,17 @@ export function registerNewLanguage(
         };
     }
 
-    // 校验扩展名格式
-    for (const ext of config.extensions) {
-        if (!ext.startsWith(".")) {
-            return {
-                success: false,
-                message: `扩展名 "${ext}" 格式错误，必须以 "." 开头（如 ".ex"）`,
-            };
-        }
-    }
+    // 校验并规范化扩展名格式
+    const normalizedExtensions = config.extensions.map((ext) => {
+        if (ext.startsWith(".")) return ext;
+        return `.${ext}`;
+    });
 
     // 构造语言规则
     const rule: LanguageRule = {
         comment_start: config.comment_start,
         comment_end: config.comment_end,
-        extensions: config.extensions,
+        extensions: normalizedExtensions,
         line_prefix: config.line_prefix ?? null,
     };
 
@@ -84,7 +80,7 @@ export function registerNewLanguage(
         const allLanguages = getAllLanguages();
         return {
             success: true,
-            message: `语言 "${name}" 注册成功（扩展名: ${config.extensions.join(", ")}）`,
+            message: `语言 "${name}" 注册成功（扩展名: ${normalizedExtensions.join(", ")}）`,
             total_languages: Object.keys(allLanguages).length,
         };
     } catch (error) {

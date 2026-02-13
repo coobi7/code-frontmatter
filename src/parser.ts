@@ -133,7 +133,19 @@ function extractHeaderContent(
     linePrefix: string | null
 ): string | null {
     // 统一换行符为 \n，兼容 Windows (\r\n) 和 Mac (\r)
-    const normalized = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+    let normalized = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+    // 去除 Shebang 行（如 #!/usr/bin/env node）
+    if (normalized.startsWith("#!")) {
+        const firstNewLine = normalized.indexOf("\n");
+        if (firstNewLine !== -1) {
+            normalized = normalized.slice(firstNewLine + 1);
+        } else {
+            // 文件只有 Shebang
+            normalized = "";
+        }
+    }
+
     const trimmedContent = normalized.trimStart();
 
     // 查找起始标记

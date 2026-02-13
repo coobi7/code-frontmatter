@@ -1,5 +1,5 @@
 /*---
-intent: "实现 cfm_scan 工具：递归扫描目录下所有代码文件，提取 CFM 表头，返回汇总索引"
+intent: "实现 cfm_read 工具：递归扫描目录下所有代码文件，提取 CFM 表头，返回汇总索引"
 role: service
 exports:
   - "scanDirectory: 扫描指定目录，返回所有文件的 CFM 表头索引"

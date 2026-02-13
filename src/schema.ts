@@ -91,7 +91,7 @@ export const CfmEntrySchema = z.object({
 export type CfmEntry = z.infer<typeof CfmEntrySchema>;
 
 /**
- * cfm_scan 的返回结果
+ * cfm_read 的返回结果
  */
 export interface ScanResult {
     /** 扫描到的总文件数 */
@@ -114,4 +114,6 @@ export interface SearchResult {
     matches: number;
     /** 匹配的 CFM 条目 */
     entries: CfmEntry[];
+    /** 解析错误的文件列表 */
+    errors?: { file: string; message: string }[];
 }

@@ -3,11 +3,11 @@ intent: "实现 cfm_search 工具：在已扫描的 CFM 索引中按关键字、
 role: service
 exports:
   - "searchFrontmatter: 搜索匹配条件的 CFM 条目"
-depends_on: ["./scan.ts", "../schema.ts"]
+depends_on: ["./read.ts", "../schema.ts"]
 when_to_load: "修改搜索逻辑或过滤条件时加载"
 ---*/
 
-import { scanDirectory } from "./scan.js";
+import { scanDirectory } from "./read.js";
 import type { CfmEntry, SearchResult } from "../schema.js";
 
 /**
@@ -33,8 +33,8 @@ export async function searchFrontmatter(
         domain?: string;
     }
 ): Promise<SearchResult> {
-    // 先获取全量扫描结果
-    const scanResult = await scanDirectory(directory, { cfmOnly: true });
+    // 获取全量扫描结果（包括解析失败的文件）
+    const scanResult = await scanDirectory(directory, { cfmOnly: false });
 
     // 拼接查询描述
     const queryParts: string[] = [];
@@ -43,15 +43,30 @@ export async function searchFrontmatter(
     if (query.domain) queryParts.push(`domain="${query.domain}"`);
     const queryDescription = queryParts.join(", ");
 
-    // 过滤匹配的条目
-    const matched = scanResult.entries.filter((entry) =>
-        matchesQuery(entry, query)
-    );
+    const matchedEntries: CfmEntry[] = [];
+    const parseErrors: { file: string; message: string }[] = [];
+
+    for (const entry of scanResult.entries) {
+        // 收集解析错误（无 frontmatter 但有警告）
+        if (!entry.frontmatter && entry.warnings && entry.warnings.length > 0) {
+            parseErrors.push({
+                file: entry.file,
+                message: entry.warnings.join("; "),
+            });
+            continue;
+        }
+
+        // 匹配查询条件
+        if (matchesQuery(entry, query)) {
+            matchedEntries.push(entry);
+        }
+    }
 
     return {
         query: queryDescription,
-        matches: matched.length,
-        entries: matched,
+        matches: matchedEntries.length,
+        entries: matchedEntries,
+        errors: parseErrors.length > 0 ? parseErrors : undefined,
     };
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "code-frontmatter",
-  "version": "0.1.0",
+  "version": "0.2.3",
   "description": "让每一个代码文件拥有自己的身份证，让 AI 不读全文就能理解你的整个项目。An MCP Server that gives every code file a self-describing frontmatter header for AI assistants.",
   "type": "module",
   "main": "dist/index.js",

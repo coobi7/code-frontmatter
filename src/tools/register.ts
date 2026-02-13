@@ -1,12 +1,16 @@
 /*---
-intent: "实现 cfm_register_language 工具：允许用户在运行时注册新的编程语言注释规则"
+intent: 实现 cfm_register_language 工具：允许运行时动态、智能地注册新语言支持
 role: service
 exports:
-  - "registerNewLanguage: 校验并注册新语言到语言注册表"
-depends_on: ["../registry.ts", "../schema.ts"]
-when_to_load: "修改语言注册接口或校验逻辑时加载"
+  - "registerNewLanguage: 校验并自动补全扩展名点号后注册新语言"
+depends_on:
+  - ../registry.js
+  - ../schema.js
+when_to_load: 修改语言注册接口或参数校验逻辑时加载
+mutates_state: false
+domain: registry
+ai_notes: 扩展名注册已实现自动规范化：用户传入 "js" 会自动补全为 ".js"。
 ---*/
-
 import { registerLanguage, getAllLanguages } from "../registry.js";
 import type { LanguageRule } from "../schema.js";
 

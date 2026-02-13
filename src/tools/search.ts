@@ -1,12 +1,16 @@
 /*---
-intent: "实现 cfm_search 工具：在已扫描的 CFM 索引中按关键字、角色、领域等条件搜索匹配文件"
+intent: 实现 cfm_search 工具：在索引中搜索文件，并能主动报告损坏的 CFM 表头文件
 role: service
 exports:
-  - "searchFrontmatter: 搜索匹配条件的 CFM 条目"
-depends_on: ["./read.ts", "../schema.ts"]
-when_to_load: "修改搜索逻辑或过滤条件时加载"
+  - "searchFrontmatter: 搜索匹配条件的 CFM 条目（含错误反馈）"
+depends_on:
+  - ./read.js
+  - ../schema.js
+when_to_load: 修改搜索过滤逻辑或错误报告机制时加载
+mutates_state: false
+domain: search
+ai_notes: 搜索逻辑已升级：即使解析失败的文件也会在结果的 errors 字段中体现，不再静默消失。
 ---*/
-
 import { scanDirectory } from "./read.js";
 import type { CfmEntry, SearchResult } from "../schema.js";
 

@@ -1,15 +1,17 @@
 /*---
-intent: "定义 CFM 表头的 Zod Schema，用于校验从代码文件中提取的 YAML 元数据"
+intent: 定义 CFM 表头的 Zod Schema 和相关交互接口类型定义
 role: model
 exports:
-  - "CfmSchema: CFM 表头的严格校验 Schema"
-  - "CfmSchemaLoose: 宽松模式 Schema（只要求 intent）"
-  - "CfmEntry: 单个文件的 CFM 条目类型（含文件路径和解析结果）"
-  - "LanguageRule: 语言注释规则类型定义"
-depends_on: ["zod"]
-when_to_load: "修改 CFM 字段定义或校验逻辑时加载"
+  - "CfmSchema: 严格校验 Schema"
+  - "CfmSchemaLoose: 宽松校验 Schema"
+  - "SearchResult: 包含匹配结果和解析错误信息的搜索结果类型"
+depends_on:
+  - zod
+when_to_load: 修改 CFM 字段定义或搜索/读取结果结构时加载
+mutates_state: false
+domain: core
+ai_notes: SearchResult 新增 errors 字段，用于反馈解析失败的文件路径及原因。
 ---*/
-
 import { z } from "zod";
 
 /**

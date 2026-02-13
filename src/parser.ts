@@ -1,13 +1,17 @@
 /*---
-intent: "从代码文件中提取 CFM 表头：根据语言规则定位注释标记，去除行前缀，解析 YAML 并校验"
+intent: 从代码文件中提取 CFM 表头：支持 Shebang 过滤，根据语言规则定位注释标记，解析 YAML 并校验
 role: service
 exports:
   - "extractFrontmatter: 从单个文件中提取并解析 CFM 表头"
-depends_on: ["./registry.ts", "./schema.ts", "yaml"]
-when_to_load: "修改表头提取逻辑或 YAML 解析方式时加载"
-ai_notes: "使用简单文本匹配而非 AST 解析，保持零重型依赖的设计原则"
+depends_on:
+  - ./registry.js
+  - ./schema.js
+  - yaml
+when_to_load: 修改表头提取逻辑或 YAML 解析方式时加载
+mutates_state: false
+domain: parser
+ai_notes: 新增了自动过滤 Shebang (#!) 行的逻辑，确保可执行脚本也能正确解析表头。
 ---*/
-
 import { readFile } from "node:fs/promises";
 import { extname } from "node:path";
 import { parse as parseYaml } from "yaml";

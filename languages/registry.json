@@ -1,0 +1,240 @@
+{
+    "javascript": {
+        "comment_start": "/*---",
+        "comment_end": "---*/",
+        "extensions": [
+            ".js",
+            ".jsx",
+            ".mjs",
+            ".cjs"
+        ],
+        "line_prefix": null
+    },
+    "typescript": {
+        "comment_start": "/*---",
+        "comment_end": "---*/",
+        "extensions": [
+            ".ts",
+            ".tsx",
+            ".mts",
+            ".cts"
+        ],
+        "line_prefix": null
+    },
+    "css": {
+        "comment_start": "/*---",
+        "comment_end": "---*/",
+        "extensions": [
+            ".css",
+            ".scss",
+            ".less"
+        ],
+        "line_prefix": null
+    },
+    "java": {
+        "comment_start": "/*---",
+        "comment_end": "---*/",
+        "extensions": [
+            ".java"
+        ],
+        "line_prefix": null
+    },
+    "c": {
+        "comment_start": "/*---",
+        "comment_end": "---*/",
+        "extensions": [
+            ".c",
+            ".h"
+        ],
+        "line_prefix": null
+    },
+    "cpp": {
+        "comment_start": "/*---",
+        "comment_end": "---*/",
+        "extensions": [
+            ".cpp",
+            ".hpp",
+            ".cc",
+            ".hh",
+            ".cxx"
+        ],
+        "line_prefix": null
+    },
+    "go": {
+        "comment_start": "/*---",
+        "comment_end": "---*/",
+        "extensions": [
+            ".go"
+        ],
+        "line_prefix": null
+    },
+    "swift": {
+        "comment_start": "/*---",
+        "comment_end": "---*/",
+        "extensions": [
+            ".swift"
+        ],
+        "line_prefix": null
+    },
+    "kotlin": {
+        "comment_start": "/*---",
+        "comment_end": "---*/",
+        "extensions": [
+            ".kt",
+            ".kts"
+        ],
+        "line_prefix": null
+    },
+    "rust": {
+        "comment_start": "/*---",
+        "comment_end": "---*/",
+        "extensions": [
+            ".rs"
+        ],
+        "line_prefix": null
+    },
+    "scala": {
+        "comment_start": "/*---",
+        "comment_end": "---*/",
+        "extensions": [
+            ".scala"
+        ],
+        "line_prefix": null
+    },
+    "csharp": {
+        "comment_start": "/*---",
+        "comment_end": "---*/",
+        "extensions": [
+            ".cs"
+        ],
+        "line_prefix": null
+    },
+    "php": {
+        "comment_start": "/*---",
+        "comment_end": "---*/",
+        "extensions": [
+            ".php"
+        ],
+        "line_prefix": null
+    },
+    "python": {
+        "comment_start": "#---",
+        "comment_end": "#---",
+        "extensions": [
+            ".py",
+            ".pyw"
+        ],
+        "line_prefix": "# "
+    },
+    "ruby": {
+        "comment_start": "#---",
+        "comment_end": "#---",
+        "extensions": [
+            ".rb"
+        ],
+        "line_prefix": "# "
+    },
+    "shell": {
+        "comment_start": "#---",
+        "comment_end": "#---",
+        "extensions": [
+            ".sh",
+            ".bash",
+            ".zsh"
+        ],
+        "line_prefix": "# "
+    },
+    "yaml": {
+        "comment_start": "#---",
+        "comment_end": "#---",
+        "extensions": [
+            ".yaml",
+            ".yml"
+        ],
+        "line_prefix": "# "
+    },
+    "toml": {
+        "comment_start": "#---",
+        "comment_end": "#---",
+        "extensions": [
+            ".toml"
+        ],
+        "line_prefix": "# "
+    },
+    "r": {
+        "comment_start": "#---",
+        "comment_end": "#---",
+        "extensions": [
+            ".r",
+            ".R"
+        ],
+        "line_prefix": "# "
+    },
+    "perl": {
+        "comment_start": "#---",
+        "comment_end": "#---",
+        "extensions": [
+            ".pl",
+            ".pm"
+        ],
+        "line_prefix": "# "
+    },
+    "html": {
+        "comment_start": "<!-----",
+        "comment_end": "----->",
+        "extensions": [
+            ".html",
+            ".htm"
+        ],
+        "line_prefix": null
+    },
+    "vue": {
+        "comment_start": "<!-----",
+        "comment_end": "----->",
+        "extensions": [
+            ".vue"
+        ],
+        "line_prefix": null
+    },
+    "svelte": {
+        "comment_start": "<!-----",
+        "comment_end": "----->",
+        "extensions": [
+            ".svelte"
+        ],
+        "line_prefix": null
+    },
+    "markdown": {
+        "comment_start": "---",
+        "comment_end": "---",
+        "extensions": [
+            ".md",
+            ".mdx"
+        ],
+        "line_prefix": null
+    },
+    "text": {
+        "comment_start": "---",
+        "comment_end": "---",
+        "extensions": [
+            ".txt"
+        ],
+        "line_prefix": null
+    },
+    "lua": {
+        "comment_start": "----",
+        "comment_end": "----",
+        "extensions": [
+            ".lua"
+        ],
+        "line_prefix": null
+    },
+    "sql": {
+        "comment_start": "----",
+        "comment_end": "----",
+        "extensions": [
+            ".sql"
+        ],
+        "line_prefix": null
+    }
+}

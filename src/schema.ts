@@ -37,11 +37,11 @@ export type LanguageRule = z.infer<typeof LanguageRuleSchema>;
  */
 export const CfmSchema = z.object({
     // ---- 必选字段 ----
-    /** 文件的核心用途和业务价值 */
+    /** 文件的核心用途和业务价值 (Be concise, < 50 words) */
     intent: z.string().max(500),
     /** 文件的角色类型 */
     role: z.string(),
-    /** 暴露的关键 API / 函数 / 组件 */
+    /** 暴露的关键 API / 函数 / 组件 (Signature: Brief description) */
     exports: z.array(z.string()),
 
     // ---- 推荐字段 ----
@@ -57,7 +57,7 @@ export const CfmSchema = z.object({
     mutates_state: z.boolean().optional(),
     /** 业务领域标签 */
     domain: z.string().optional(),
-    /** 给 AI 的特殊注意事项 */
+    /** 给 AI 的特殊注意事项 (Critical constraints only. NO changelogs/history. Be concise!) */
     ai_notes: z.string().optional(),
     /** 表头规范版本号 */
     cfm_version: z.string().optional(),

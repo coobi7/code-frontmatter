@@ -87,21 +87,21 @@ async function main(): Promise<void> {
     // ─── 工具 2: cfm_write ──────────────────────────────────
     server.tool(
         "cfm_write",
-        "将标准 CFM 表头写入指定代码文件。AI 在完成编码任务后调用此工具补充/更新表头，确保字段名和注释格式严格合规。工具会自动根据文件类型选择正确的注释语法。",
+        "将标准 CFM 表头写入指定代码文件。CRITICAL: 更新表头时必须执行'主动维护'：1. 读取旧表头。2. 保留'永久性技术约束/经验教训'。3. 丢弃'变更日志/历史/流程信息'。4. 将剩余内容极致精简。禁止盲目覆盖！",
         {
             file: z
                 .string()
                 .describe("目标文件的绝对路径"),
             intent: z
                 .string()
-                .max(200)
-                .describe("文件的核心用途，简洁明了（必填）"),
+                .max(300)
+                .describe("文件的核心用途。必须精简高效（<50字），拒绝废话。"),
             role: z
                 .string()
                 .describe("文件角色（如 service, component, util, config, page, model, entry, example）"),
             exports: z
                 .array(z.string())
-                .describe("导出的关键 API / 函数 / 组件（格式: \"名称: 简述\"）"),
+                .describe("导出的关键 API/组件列表。格式：'Name: Brief desc'。只列出最重要的，拒绝冗长签名。"),
             depends_on: z
                 .array(z.string())
                 .optional()
@@ -109,7 +109,7 @@ async function main(): Promise<void> {
             when_to_load: z
                 .string()
                 .optional()
-                .describe("什么场景下 AI 才需要读取此文件全文"),
+                .describe("什么场景下才需要读取此文件全文。只描述关键触发条件，保持简短。"),
             mutates_state: z
                 .boolean()
                 .optional()
@@ -125,7 +125,7 @@ async function main(): Promise<void> {
             ai_notes: z
                 .string()
                 .optional()
-                .describe("给 AI 的特殊注意事项"),
+                .describe("给 AI 的关键技术约束或警示。必须是永久性知识（如'使用捕获阶段监听'）。严禁记录变更日志/历史/作者/日期！只保留对理解代码至关重要的信息，越短越好。"),
         },
         async ({ file, intent, role, exports, depends_on, when_to_load, mutates_state, side_effects, domain, ai_notes }) => {
             try {

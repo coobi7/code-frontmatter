@@ -283,7 +283,7 @@ Step 5  AI 检查并更新涉及文件的表头（如 exports 变了就更新）
 ### 7.1 MVP 必须实现
 
 - [ ] MCP Server 基础框架搭建
-- [ ] `cfm_scan`：扫描目录，提取所有文件 CFM 表头，返回汇总索引
+- [ ] `cfm_read`：扫描目录，提取所有文件 CFM 表头，返回汇总索引
 - [ ] `cfm_search`：按关键字搜索表头
 - [ ] `cfm_register_language`：注册新语言注释规则
 - [ ] 内置 10+ 主流语言的注释规则

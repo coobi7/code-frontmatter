@@ -1,40 +1,49 @@
 ---
-intent: "README for Code Frontmatter project"
+intent: "Project documentation and usage guide"
 role: documentation
-when_to_load: "Initial project setup or understanding CFM usage"
+when_to_load: "Initial setup or reference"
 ---
 
 # Code Frontmatter (CFM)
 
-> **"Identity Cards" for your code files.**  
-> **Let AI understand your entire project without reading every single line.**
+[![npm version](https://img.shields.io/npm/v/code-frontmatter.svg?style=flat-square)](https://www.npmjs.com/package/code-frontmatter)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
+
+[中文文档](./README.zh-CN.md) | [English](./README.md)
+
+> **The "Passport" for your code files.**  
+> **Empower AI to understand your entire repository with < 5% of the token cost.**
 
 ---
 
-Code Frontmatter (CFM) is an open standard and MCP (Model Context Protocol) Server that allows you to embed structured metadata (YAML) at the top of every source code file.
+**Code Frontmatter (CFM)** is an open standard and [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) Server that manages structured metadata within your source code. 
 
-By scanning these lightweight headers, AI coding assistants (like Cursor, Windsurf, Claude Code) can build a cognitive map of your entire project with **minimal token cost**, eliminating hallucinations caused by context overload.
+By adding a lightweight YAML header to your files, you promote your codebase from "text files" to a "semantic graph" that AI agents (like Cursor, Windsurf, Claude) can navigate instantly and accurately.
 
 ## 🚀 Why CFM?
 
-| Feature | Without CFM | With CFM |
-|---|---|---|
-| **Context Load** | Full project files (huge tokens) | Just headers (~5% tokens) |
-| **Accuracy** | High hallucination risk | Deterministic file intent |
-| **Cost** | $$$ Expensive API calls | $ Cheap & Efficient |
-| **Scale** | Fails on large repos | Works on 10k+ file repos |
+AI coding assistants often struggle with large codebases:
+1.  **Context Overflow**: Reading every file to understand the architecture consumes massive context windows ($$$).
+2.  **Hallucination**: Guessing file purposes leads to bugs.
+3.  **blindness**: Agents don't know *where* to look for specific logic.
+
+**CFM solves this by exposing high-level intent, architectural roles, and dependency graphs without requiring the AI to read the code body.**
+
+| Metric | Without CFM | With CFM |
+| :--- | :--- | :--- |
+| **Context Cost** | 100% (Full Source) | **~3-5% (Headers Only)** |
+| **Search Speed** | Slow (Grep/Read) | **Instant (Semantic Index)** |
+| **Accuracy** | Probabilistic | **Deterministic** |
 
 ## 📦 Installation
 
-To use CFM with your AI IDE (Cursor, Claude Desktop, etc.), install it as an MCP Server:
+This project is designed as a **Model Context Protocol (MCP)** server.
 
-```bash
-npx -y code-frontmatter
-```
+### 1. For [Cursor](https://cursor.sh)
 
-### Configuration
+Add the following to your `~/.cursor/mcp.json` (or strictly via the Cursor Settings UI):
 
-#### For Cursor (`~/.cursor/mcp.json`)
 ```json
 {
   "mcpServers": {
@@ -46,7 +55,10 @@ npx -y code-frontmatter
 }
 ```
 
-#### For Claude Desktop
+### 2. For [Claude Desktop](https://claude.ai/download)
+
+Add the following to your `claude_desktop_config.json`:
+
 ```json
 {
   "mcpServers": {
@@ -58,61 +70,89 @@ npx -y code-frontmatter
 }
 ```
 
-## 🛠 Usage
+## 🤖 Instructions for AI Agents (Critical)
 
-### 1. Add Frontmatter to Your Code
+**To get the most out of CFM, you must instruct your AI assistant to use it.** 
+AI models are lazy; they will try to guess instead of calling tools unless explicitly told otherwise.
 
-Add a CFM header to the top of your files using your language's comment syntax.
+**Copy and paste the following into your Project Rules (`.cursorrules` / `.windsurfrules`) or Custom Instructions:**
 
-**JavaScript / TypeScript:**
-```javascript
+```markdown
+# Code Frontmatter Protocol (CFM)
+
+This project uses Code Frontmatter (CFM) to manage file metadata. 
+You MUST follow these rules strictly:
+
+1.  **Initialize Context**: At the start of a session, ALWAYS call `cfm_read` (or `cfm_scan`) on the project root to build your mental map. 
+    - DO NOT list all files with `ls -R`. Use `cfm_read` instead.
+2.  **Search First**: When looking for specific functionality (e.g., "auth logic"), use `cfm_search` before reading file contents.
+3.  **Maintain Headers**: 
+    - When creating a new file, you MUST generate a valid CFM header (intent, role, exports).
+    - When significantly modifying code, you MUST update the `exports` and `ai_notes` in the header using `cfm_write`.
+    - KEEP `ai_notes` BRIEF. Only store permanent architectural constraints, not change logs.
+```
+
+## 🛠 Usage & Syntax
+
+### The Header Format
+
+CFM uses a YAML block inside your language's standard comment syntax.
+
+**TypeScript / JavaScript / Java / C#:**
+```typescript
 /*---
-intent: "Manages user authentication state and login logic"
+intent: "Handles JWT token validation and rotation"
 role: service
 exports:
-  - "login: Authenticate user with email/pass"
-  - "logout: Clear session"
-depends_on: ["api-client.ts", "store.ts"]
-when_to_load: "Modifying auth flow or session handling"
+  - "verifyToken: Checks signature"
+  - "refreshToken: Issues new access token"
+depends_on: ["config.ts", "db-client.ts"]
+ai_notes: "Do not modify the secret key derivation logic."
 ---*/
 
-export function login(email, password) { ... }
+export function verifyToken(token) { ... }
 ```
 
-**Python:**
+**Python / Ruby / Shell / YAML:**
 ```python
 #---
-# intent: "Data model for User entity"
+# intent: "User data model definition"
 # role: model
-# exports:
-#   - "User: Standard user class"
+# domain: "identity"
 # mutates_state: false
 #---
 
-class User: ...
+class User(BaseModel): ...
 ```
 
-### 2. Available Tools
+### Available Tools
 
-The MCP Server exposes the following tools to your AI assistant:
+When installed as an MCP server, your AI gains these super-powers:
 
-- **`cfm_read(directory)`**: Scans your project and returns a structured index of all CFM headers.
-- **`cfm_search(query)`**: Search for files by keyword, role, or domain without reading full contents.
-- **`cfm_register_language(name, config)`**: Teach CFM how to parse headers for a new language on the fly.
-
-## 📋 Schema
-
-A valid CFM header requires at least:
-- **`intent`**: What is this file for? (String)
-- **`role`**: What is its architectural role? (String, e.g., `component`, `service`, `util`)
-- **`exports`**: What key things does it export? (Array of Strings)
-
-Optional fields: `depends_on`, `when_to_load`, `side_effects`, `mutates_state`, `domain`, `ai_notes`.
+*   **`cfm_read({ directory })`**: 
+    *   Returns a high-level summary of all files (paths, intents, roles, exports) in one JSON object. 
+    *   *Best for: Initializing session context.*
+*   **`cfm_search({ query, role, domain })`**: 
+    *   Semantic search over the headers. 
+    *   *Best for: "Find where user billing is handled".*
+*   **`cfm_write({ file, intent, ... })`**: 
+    *   Writes or updates the header.
+    *   *Best for: Creating new files or updating documentation.*
+*   **`cfm_register_language({ name, extensions, ... })`**: 
+    *   Teaches the server how to parse headers for custom file types.
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow the standard GitHub workflow.
+We want to make this the industry standard for AI-Code interaction.
+1.  Fork the repo.
+2.  Create a feature branch.
+3.  Submit a PR.
+
+**Focus areas:**
+- Parsers for more languages (Rust, Go, Swift).
+- IDE Extensions (VS Code, JetBrains).
+- Analysis tools.
 
 ## 📄 License
 
-MIT © 2026 coobi7
+MIT © 2026 [coobi7](https://github.com/coobi7)

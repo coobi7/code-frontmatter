@@ -37,6 +37,10 @@
     "type": "git",
     "url": "https://github.com/coobi7/code-frontmatter.git"
   },
+  "bugs": {
+    "url": "https://github.com/coobi7/code-frontmatter/issues"
+  },
+  "homepage": "https://github.com/coobi7/code-frontmatter#readme",
   "engines": {
     "node": ">=18.0.0"
   },

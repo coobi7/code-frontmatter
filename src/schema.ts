@@ -2,9 +2,15 @@
 intent: 定义 CFM 表头的 Zod Schema 和相关交互接口类型定义
 role: model
 exports:
-  - "CfmSchema: 严格校验 Schema"
-  - "CfmSchemaLoose: 宽松校验 Schema"
-  - "SearchResult: 包含匹配结果和解析错误信息的搜索结果类型"
+  - "LanguageRuleSchema: 语言规则 Zod Schema"
+  - "LanguageRule: 语言规则类型定义"
+  - "CfmSchema: 完整 CFM 表头 Zod Schema"
+  - "CfmData: 完整 CFM 表头类型"
+  - "CfmSchemaLoose: 宽松模式 CFM 表头 Schema"
+  - "CfmEntrySchema: 扫描结果条目 Schema"
+  - "CfmEntry: 扫描结果条目类型"
+  - "ScanResult: 扫描结果汇总类型"
+  - "SearchResult: 搜索结果类型"
 depends_on:
   - zod
 when_to_load: 修改 CFM 字段定义或搜索/读取结果结构时加载

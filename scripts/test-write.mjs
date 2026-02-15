@@ -1,8 +1,7 @@
 /*---
 intent: 测试脚本：验证 cfm_write 工具的写入功能及 cfm_read 的读取功能是否形成闭环
 role: test
-exports:
-  - "test: 执行所有测试用例的主函数"
+exports: []
 depends_on:
   - ../dist/registry.js
   - ../dist/tools/write.js

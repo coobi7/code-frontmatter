@@ -196,22 +196,31 @@ MCP Server 只向 AI 暴露 **3 个核心工具**，保持极简：
 
 | 工具名 | 功能 | 调用时机 |
 |---|---|---|
-| `cfm_read` | 扫描项目所有文件，返回表头索引汇总 | 新任务开始时，AI 建立全局认知 |
-| `cfm_search` | 按关键字/角色/领域搜索匹配的文件表头 | 巨型项目中精准定位目标文件 |
+| `cfm_read` | 读取单个或多个文件的表头（支持文件路径和目录路径） | AI 在读取文件全文前，先查看表头决定是否需要深入阅读 |
+| `cfm_search` | 按关键字/角色/领域搜索匹配的文件表头 | AI 收到用户任务后，精准定位相关文件（首选入口） |
 | `cfm_register_language` | 注册新语言的注释语法规则 | 遇到未知语言类型时 |
 
 ### 4.2 AI 的标准工作流
 
+> **核心理念：CFM 是 AI 正常工作流的“加速器”，不是“替代品”。**
+>
+> AI 应该保持自身 IDE/CLI 的正常工作流，CFM 作为透明的过滤层，在 AI **即将读取某个文件全文的前一刻**介入，帮它用极低成本判断“值不值得读”。
+
 ```
 用户：「帮我修改下单后的库存扣减逻辑」
 
-Step 1  AI 调用 cfm_scan → 获得全部文件的表头索引（~120K tokens）
-Step 2  AI 通过 intent/exports 字段定位相关文件：
-        → order_service.py（意图提到"订单处理"）
-        → inventory.py（意图提到"库存管理"）
-Step 3  AI 通过 IDE 原生工具读取这 2 个文件的全文
+主路径（搜索命中）：
+Step 1  AI 调用 cfm_search(keyword="库存") → 精准命中 inventory.py、order_service.py
+Step 2  AI 根据返回的 intent/exports 判断需要深入阅读哪些文件
+Step 3  AI 通过 IDE/CLI 原生工具读取目标文件的全文
 Step 4  AI 完成编码修改
-Step 5  AI 检查并更新涉及文件的表头（如 exports 变了就更新）
+Step 5  AI 调用 cfm_write 更新涉及文件的表头
+
+备选路径（搜索未命中时）：
+Step 1  AI 用自身工具（grep/list_dir）定位候选文件
+Step 2  对候选文件调用 cfm_read(path="文件路径") → 仅读取表头
+Step 3  根据表头 intent/exports 判断是否需要读取全文
+Step 4  按需读取 → 编码 → 更新表头
 ```
 
 ### 4.3 表头的生命周期管理

@@ -18,7 +18,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { loadRegistry } from "./registry.js";
-import { scanDirectory } from "./tools/read.js";
+import { scanDirectory, readSingleFile } from "./tools/read.js";
 import { searchFrontmatter } from "./tools/search.js";
 import { registerNewLanguage } from "./tools/register.js";
 import { writeFrontmatter } from "./tools/write.js";
@@ -39,11 +39,11 @@ async function main(): Promise<void> {
     // ─── 工具 1: cfm_read ───────────────────────────────────
     server.tool(
         "cfm_read",
-        "扫描项目目录中所有代码文件的 CFM 表头，返回结构化索引。这是 AI 建立项目全局认知的第一步：用极低 Token 消耗获取整个项目的文件身份信息。",
+        "读取代码文件的 CFM 表头（文件的'身份证'）。支持两种模式：传入单个文件路径时，仅返回该文件的表头；传入目录路径时，批量扫描该目录下所有文件的表头。建议在读取文件全文之前，先用此工具查看表头，根据 intent 和 exports 判断是否需要深入阅读。",
         {
-            directory: z
+            path: z
                 .string()
-                .describe("要扫描的项目根目录的绝对路径"),
+                .describe("目标文件或目录的绝对路径。传入文件时读取单个表头，传入目录时批量扫描"),
             cfm_only: z
                 .boolean()
                 .optional()
@@ -54,27 +54,44 @@ async function main(): Promise<void> {
                 .optional()
                 .describe("额外忽略的目录名列表（默认已忽略 node_modules, .git, dist 等）"),
         },
-        async ({ directory, cfm_only, ignore_dirs }) => {
+        async ({ path: targetPath, cfm_only, ignore_dirs }) => {
             try {
-                const result = await scanDirectory(directory, {
-                    cfmOnly: cfm_only,
-                    ignoreDirs: ignore_dirs,
-                });
+                // 检测是文件还是目录
+                const { stat: fsStat } = await import("node:fs/promises");
+                const pathStat = await fsStat(targetPath);
 
-                return {
-                    content: [
-                        {
-                            type: "text" as const,
-                            text: JSON.stringify(result, null, 2),
-                        },
-                    ],
-                };
+                if (pathStat.isFile()) {
+                    // 单文件模式：读取单个文件的表头
+                    const entry = await readSingleFile(targetPath);
+                    return {
+                        content: [
+                            {
+                                type: "text" as const,
+                                text: JSON.stringify(entry, null, 2),
+                            },
+                        ],
+                    };
+                } else {
+                    // 目录模式：批量扫描
+                    const result = await scanDirectory(targetPath, {
+                        cfmOnly: cfm_only,
+                        ignoreDirs: ignore_dirs,
+                    });
+                    return {
+                        content: [
+                            {
+                                type: "text" as const,
+                                text: JSON.stringify(result, null, 2),
+                            },
+                        ],
+                    };
+                }
             } catch (error) {
                 return {
                     content: [
                         {
                             type: "text" as const,
-                            text: `扫描失败: ${(error as Error).message}`,
+                            text: `读取失败: ${(error as Error).message}`,
                         },
                     ],
                     isError: true,
@@ -166,7 +183,7 @@ async function main(): Promise<void> {
     // ─── 工具 3: cfm_search ─────────────────────────────────
     server.tool(
         "cfm_search",
-        "在项目中搜索匹配条件的 CFM 表头。支持按关键字（在 intent, exports 等字段中全文搜索）、按角色（role）和按业务领域（domain）过滤，用于精准定位目标文件。",
+        "在项目中搜索匹配条件的 CFM 表头。支持按关键字（在 intent, exports 等字段中全文搜索）、按角色（role）和按业务领域（domain）过滤。这是 AI 精准定位目标文件的首选方式：先搜索再决定是否深入阅读，避免逐个文件试探。",
         {
             directory: z
                 .string()

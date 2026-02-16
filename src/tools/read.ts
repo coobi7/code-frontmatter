@@ -1,7 +1,8 @@
 /*---
-intent: "实现 cfm_read 工具：递归扫描目录下所有代码文件，提取 CFM 表头，返回汇总索引"
+intent: "实现 cfm_read 工具：支持单文件表头读取和目录批量扫描两种模式"
 role: service
 exports:
+  - "readSingleFile: 读取单个文件的 CFM 表头"
   - "scanDirectory: 扫描指定目录，返回所有文件的 CFM 表头索引"
 depends_on: ["../parser.ts", "../registry.ts", "../schema.ts"]
 when_to_load: "修改文件扫描逻辑、过滤规则或结果格式时加载"
@@ -9,10 +10,21 @@ ai_notes: "默认跳过 node_modules, .git, dist 等常见非源码目录"
 ---*/
 
 import { readdir, stat } from "node:fs/promises";
-import { join, relative, extname } from "node:path";
+import { join, relative, extname, basename } from "node:path";
 import { extractFrontmatter } from "../parser.js";
 import { getLanguageByExtension } from "../registry.js";
 import type { CfmEntry, ScanResult } from "../schema.js";
+
+/**
+ * 读取单个文件的 CFM 表头
+ *
+ * @param filePath - 文件的绝对路径
+ * @returns CFM 条目（含解析数据或 null + 警告信息）
+ */
+export async function readSingleFile(filePath: string): Promise<CfmEntry> {
+    const relativePath = basename(filePath);
+    return extractFrontmatter(filePath, relativePath);
+}
 
 /** 默认跳过的目录名 */
 const DEFAULT_IGNORE_DIRS = new Set([

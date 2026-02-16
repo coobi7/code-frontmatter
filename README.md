@@ -83,9 +83,8 @@ AI models are lazy; they will try to guess instead of calling tools unless expli
 This project uses Code Frontmatter (CFM) to manage file metadata. 
 You MUST follow these rules strictly:
 
-1.  **Initialize Context**: At the start of a session, ALWAYS call `cfm_read` (or `cfm_scan`) on the project root to build your mental map. 
-    - DO NOT list all files with `ls -R`. Use `cfm_read` instead.
-2.  **Search First**: When looking for specific functionality (e.g., "auth logic"), use `cfm_search` before reading file contents.
+1.  **Search First**: When looking for specific functionality (e.g., "auth logic"), use `cfm_search` before reading file contents. This is the fastest way to locate relevant files.
+2.  **Read Header Before Full File**: Before reading any file's full content, call `cfm_read` with the file path to check its header first. Use `intent` and `exports` to decide if you actually need to read the full file.
 3.  **Maintain Headers**: 
     - When creating a new file, you MUST generate a valid CFM header (intent, role, exports).
     - When significantly modifying code, you MUST update the `exports` and `ai_notes` in the header using `cfm_write`.
@@ -129,12 +128,12 @@ class User(BaseModel): ...
 
 When installed as an MCP server, your AI gains these super-powers:
 
-*   **`cfm_read({ directory })`**: 
-    *   Returns a high-level summary of all files (paths, intents, roles, exports) in one JSON object. 
-    *   *Best for: Initializing session context.*
-*   **`cfm_search({ query, role, domain })`**: 
-    *   Semantic search over the headers. 
-    *   *Best for: "Find where user billing is handled".*
+*   **`cfm_search({ directory, keyword, role, domain })`**: 
+    *   Semantic search over the headers. The preferred entry point for locating files.
+    *   *Best for: "Find where user billing is handled". Search first, then decide what to read.*
+*   **`cfm_read({ path })`**: 
+    *   Reads CFM headers. Pass a **file path** to read a single header, or a **directory path** to scan all files.
+    *   *Best for: Checking a file's identity before reading its full content.*
 *   **`cfm_write({ file, intent, ... })`**: 
     *   Writes or updates the header.
     *   *Best for: Creating new files or updating documentation.*

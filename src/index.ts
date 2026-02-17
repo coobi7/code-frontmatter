@@ -2,8 +2,7 @@
 /*---
 intent: "MCP Server 入口：注册 cfm_read、cfm_write、cfm_search、cfm_register_language 四个工具，通过 stdio 与 AI IDE 通信"
 role: entry
-exports:
-  - "main: MCP Server 启动函数"
+exports: []
 depends_on:
   - "@modelcontextprotocol/sdk"
   - "./registry.ts"

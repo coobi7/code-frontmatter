@@ -2,6 +2,7 @@
 intent: "实现 cfm_write 工具：将标准 CFM 表头写入指定代码文件，确保字段名和注释格式严格合规"
 role: service
 exports:
+  - "CfmWriteInput: 写入表头所需的输入数据接口"
   - "writeFrontmatter: 将 CFM 表头写入指定文件"
 depends_on: ["../registry.ts", "../schema.ts"]
 when_to_load: "修改表头写入逻辑、格式生成或替换策略时加载"

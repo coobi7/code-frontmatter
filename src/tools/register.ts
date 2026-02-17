@@ -2,6 +2,7 @@
 intent: 实现 cfm_register_language 工具：允许运行时动态、智能地注册新语言支持
 role: service
 exports:
+  - "RegisterResult: 注册结果接口定义"
   - "registerNewLanguage: 校验并自动补全扩展名点号后注册新语言"
 depends_on:
   - ../registry.js

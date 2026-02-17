@@ -141,6 +141,34 @@ When installed as an MCP server, your AI gains these super-powers:
 *   **`cfm_register_language({ name, extensions, ... })`**: 
     *   Teaches the server how to parse headers for custom file types.
 
+## ✨ Automated Maintenance (Preventing Rot)
+
+The biggest risk with documentation is that it becomes outdated ("Documentation Rot"). CFM includes built-in tools to prevent this.
+
+### 1. Drift Detection (`cfm-check`)
+
+Code Frontmatter comes with a CLI tool that verifies if your CFM headers match your actual code exports.
+
+```bash
+# Check the entire project
+npx cfm-check
+
+# Check specific directory
+npx cfm-check src/
+```
+
+If it detects discrepancies (e.g., you exported a new function but didn't update the `exports` list in the header), it will exit with an error.
+
+### 2. Git Pre-commit Hook
+
+You can install a git hook to automatically check for drift before every commit:
+
+```bash
+npm run setup-hooks
+```
+
+Once installed, `git commit` will be blocked if your CFM headers are outdated, ensuring your documentation is always synchronized with your code.
+
 ## 🤝 Contributing
 
 We want to make this the industry standard for AI-Code interaction.

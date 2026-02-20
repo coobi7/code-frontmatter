@@ -1,6 +1,6 @@
 # Code Frontmatter (CFM) 整改计划
 
-> **背景**：此文档基于一位真实 AI（Google Gemini）在实际项目中测试 CFM 全部 4 个工具后的反馈。
+> **背景**：此文档基于一位真实 AI在实际项目中测试 CFM 全部 4 个工具后的反馈。
 > AI 测试了 cfm_read、cfm_search、cfm_write、cfm_register_language，功能全部通过，但发现 AI 并没有按照 CFM 设计者预期的工作流使用工具。
 > 这份整改计划旨在解决"功能好但 AI 不主动用"的核心问题。
 
@@ -14,6 +14,7 @@
 1. 工具描述使用"建议"语气，AI 将其视为可选项而非必须步骤
 2. AI 有自己的惯性工具（grep_search、list_dir、view_file），会优先使用它们
 3. CFM 的工作流意图（先搜索→再读表头→再决定是否深读）没有被强制执行
+4. 对于修改过的现有文件，AI 并没有主动调用 cfm_write 工具创建表头，重要的经验，必须注意的事项，会重复踩坑的也没有主动维护表头。
 
 **结论：70% 精力应放在"让 AI 无法忽略 CFM"，30% 放在新功能。**
 
@@ -149,7 +150,7 @@ Name: "项目 CFM 表头覆盖概况"
 内容示例（保持极度轻量，不超过 20 行）：
 
 ```
-CFM 项目概况：
+ZZMAP 项目概况：
 - 总文件数: 127
 - 有表头文件: 13 (10.2%)
 - 涵盖领域: auth, billing, legal, ui-interaction, documentation

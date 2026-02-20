@@ -2,8 +2,8 @@ name: Publish to npm
 
 on:
   push:
-    tags:
-      - "v*" # 只在推送 v0.3.0 这样的 tag 时触发
+    branches:
+      - main # 推送到 main 分支时自动触发
 
 jobs:
   publish:

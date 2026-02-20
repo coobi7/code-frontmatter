@@ -18,7 +18,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { loadRegistry } from "./registry.js";
-import { scanDirectory, readSingleFile } from "./tools/read.js";
+import { scanDirectory, readSingleFile, findProjectRoot } from "./tools/read.js";
 import { searchFrontmatter } from "./tools/search.js";
 import { registerNewLanguage } from "./tools/register.js";
 import { writeFrontmatter } from "./tools/write.js";
@@ -39,7 +39,7 @@ async function main(): Promise<void> {
     // ─── 工具 1: cfm_read ───────────────────────────────────
     server.tool(
         "cfm_read",
-        "读取代码文件的 CFM 表头（文件的'身份证'）。支持两种模式：传入单个文件路径时，仅返回该文件的表头；传入目录路径时，批量扫描该目录下所有文件的表头。建议在读取文件全文之前，先用此工具查看表头，根据 intent 和 exports 判断是否需要深入阅读。",
+        "读取代码文件的 CFM 表头（文件的'身份证'）。\n\n关键工作流：在对代码文件执行全文阅读前，应先调用此工具检查表头。表头通常只有 5-10 行，包含 intent（用途）和 exports（导出接口），可以替代阅读 100-500 行全文来判断文件是否与当前任务相关。\n\n支持两种模式：\n- 传入单个文件路径：仅返回该文件的表头（轻量）\n- 传入目录路径：批量扫描该目录下所有文件的表头（较重，仅在需要项目全貌时使用）\n\n典型用法：先用 cfm_search 定位候选文件，再用 cfm_read 检查单个文件表头，根据 intent 和 exports 判断是否需要深入阅读全文。",
         {
             path: z
                 .string()
@@ -61,8 +61,9 @@ async function main(): Promise<void> {
                 const pathStat = await fsStat(targetPath);
 
                 if (pathStat.isFile()) {
-                    // 单文件模式：读取单个文件的表头
-                    const entry = await readSingleFile(targetPath);
+                    // 单文件模式：读取单个文件的表头（含 depended_by 反向依赖）
+                    const projectRoot = await findProjectRoot(targetPath);
+                    const entry = await readSingleFile(targetPath, projectRoot ?? undefined);
                     return {
                         content: [
                             {
@@ -103,7 +104,7 @@ async function main(): Promise<void> {
     // ─── 工具 2: cfm_write ──────────────────────────────────
     server.tool(
         "cfm_write",
-        "将标准 CFM 表头写入指定代码文件。CRITICAL: 更新表头时您有'主动维护义务'：1. 读取旧表头。2. 保留'永久性技术约束/经验教训'。3. 丢弃'变更日志/历史/流程信息'。4. 将剩余内容极致精简。禁止盲目覆盖！",
+        "将标准 CFM 表头写入指定代码文件。\n\n维护义务：当你修改了某个代码文件的核心逻辑、导出接口或依赖关系后，应调用此工具更新该文件的表头，保持表头与代码的一致性。\n\nCRITICAL: 更新表头时的规则：\n1. 读取旧表头\n2. 保留'永久性技术约束/经验教训'（如 ai_notes 中的警告）\n3. 丢弃'变更日志/历史/流程信息'\n4. 将剩余内容极致精简\n\n禁止盲目覆盖！",
         {
             file: z
                 .string()
@@ -183,7 +184,7 @@ async function main(): Promise<void> {
     // ─── 工具 3: cfm_search ─────────────────────────────────
     server.tool(
         "cfm_search",
-        "在项目中搜索匹配条件的 CFM 表头。支持按关键字（在 intent, exports 等字段中全文搜索）、按角色（role）和按业务领域（domain）过滤。这是 AI 精准定位目标文件的首选方式：先搜索再决定是否深入阅读，避免逐个文件试探。",
+        "在项目中搜索匹配条件的 CFM 表头。\n\n这是精准定位目标文件的首选入口：先搜索再决定是否深入阅读，比逐个文件调用 grep 或 view_file 节省 5-10 倍 token。\n\n支持三种过滤维度：\n- keyword：在 intent、exports、ai_notes 等字段中全文搜索\n- role：按文件角色过滤（service, component, util, config, page, model, entry）\n- domain：按业务领域过滤（如 payment, auth, billing）\n\n返回匹配文件的完整表头摘要，无需读取文件全文即可做出决策。",
         {
             directory: z
                 .string()

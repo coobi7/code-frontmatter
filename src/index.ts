@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 /*---
-intent: "MCP Server 入口：注册 cfm_read、cfm_write、cfm_search、cfm_register_language 四个工具，通过 stdio 与 AI IDE 通信"
+intent: MCP Server 入口：注册 cfm_read、cfm_write、cfm_search、cfm_register_language 四个工具和 project-summary Resource，通过 stdio 与 AI IDE 通信
 role: entry
 exports: []
 depends_on:
   - "@modelcontextprotocol/sdk"
-  - "./registry.ts"
-  - "./tools/read.ts"
-  - "./tools/search.ts"
-  - "./tools/register.ts"
-  - "./tools/write.ts"
-when_to_load: "修改 MCP 工具注册、Server 配置或启动流程时加载"
-ai_notes: "使用 stdio transport，兼容所有 MCP 客户端（Cursor、Claude Desktop 等）"
+  - ./registry.ts
+  - ./tools/read.ts
+  - ./tools/search.ts
+  - ./tools/register.ts
+  - ./tools/write.ts
+  - ./tools/summary.ts
+when_to_load: 修改 MCP 工具注册、Resource 配置或启动流程时加载
+ai_notes: 使用 stdio transport，兼容所有 MCP 客户端。新增 cfm://project-summary Resource 暴露项目概况。
 ---*/
-
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -22,6 +22,7 @@ import { scanDirectory, readSingleFile, findProjectRoot } from "./tools/read.js"
 import { searchFrontmatter } from "./tools/search.js";
 import { registerNewLanguage } from "./tools/register.js";
 import { writeFrontmatter } from "./tools/write.js";
+import { generateProjectSummary } from "./tools/summary.js";
 
 /**
  * 创建并配置 MCP Server
@@ -286,6 +287,37 @@ async function main(): Promise<void> {
                 ],
                 isError: !result.success,
             };
+        }
+    );
+
+    // ─── Resource: 项目 CFM 概况 ────────────────────────────
+    server.resource(
+        "project-summary",
+        "cfm://project-summary",
+        { description: "项目 CFM 表头覆盖概况（轻量摘要，< 20 行）" },
+        async (uri) => {
+            try {
+                const summary = await generateProjectSummary(process.cwd());
+                return {
+                    contents: [
+                        {
+                            uri: uri.href,
+                            text: summary,
+                            mimeType: "text/plain",
+                        },
+                    ],
+                };
+            } catch (error) {
+                return {
+                    contents: [
+                        {
+                            uri: uri.href,
+                            text: `摘要生成失败: ${(error as Error).message}`,
+                            mimeType: "text/plain",
+                        },
+                    ],
+                };
+            }
         }
     );
 

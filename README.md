@@ -91,6 +91,37 @@ You MUST follow these rules strictly:
     - KEEP `ai_notes` BRIEF. Only store permanent architectural constraints, not change logs.
 ```
 
+## 📐 The Format Standard (No Installation Required)
+
+**CFM's real power is the header format itself**, not just the MCP tools. Even without installing CFM, a manually added `/*--- ---*/` YAML header is instantly understood by **any AI assistant**.
+
+Think of it like JSDoc — you don't need a tool to benefit from it.
+
+### ⚡ 30 Seconds to Start
+
+Just add 3 lines at the top of any file:
+
+```javascript
+/*---
+intent: "Handles user login and session management"
+role: service
+---*/
+
+// your code here...
+```
+
+That's it. Any AI reading this file will now understand its purpose *without reading the code body*.
+
+### 🔧 What Do the MCP Tools Add?
+
+| Manual Header | CFM MCP Tools |
+| :--- | :--- |
+| ✅ AI can read your header | ✅ AI can **search** all headers |
+| ✅ Works without any install | ✅ **Automates** header creation & updates |
+| ❌ You maintain it by hand | ✅ Detects **drift** between headers & code |
+
+**Bottom line**: The format is the standard. The MCP tools just automate the upkeep.
+
 ## 🛠 Usage & Syntax
 
 ### The Header Format

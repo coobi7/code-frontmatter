@@ -94,6 +94,8 @@ export const CfmEntrySchema = z.object({
     frontmatter: z.record(z.unknown()).nullable(),
     /** 校验警告信息 */
     warnings: z.array(z.string()).optional(),
+    /** 反向依赖：哪些文件的 depends_on 包含当前文件（仅单文件模式返回） */
+    depended_by: z.array(z.string()).optional(),
 });
 
 export type CfmEntry = z.infer<typeof CfmEntrySchema>;

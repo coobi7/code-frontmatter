@@ -1,13 +1,12 @@
 /*---
-intent: "Example JavaScript module showcasing basic functions for greetings and order calculation"
+intent: Example JavaScript module with basic greeting and order calculation functions
 role: example
 exports:
-  - "greet: Returns a welcome message"
-  - "calculateTotal: Calculates total price for order items"
-when_to_load: "Testing CFM parsing or as a reference for JS/TS frontmatter format"
-ai_notes: "This is a clean example file with no dependencies."
+  - "greet: Returns a welcome message string"
+  - "calculateTotal: Calculates total price for order items array"
+when_to_load: Testing CFM parsing or as a reference for JS/TS frontmatter format
+ai_notes: Clean example file with no real dependencies. Safe to modify for testing.
 ---*/
-
 /**
  * 返回一条欢迎消息
  * @param {string} name - 用户名

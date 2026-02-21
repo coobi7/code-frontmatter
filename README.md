@@ -83,14 +83,44 @@ AI models are lazy; they will try to guess instead of calling tools unless expli
 This project uses Code Frontmatter (CFM) to manage file metadata. 
 You MUST follow these rules strictly:
 
-1.  **Initialize Context**: At the start of a session, ALWAYS call `cfm_read` (or `cfm_scan`) on the project root to build your mental map. 
-    - DO NOT list all files with `ls -R`. Use `cfm_read` instead.
-2.  **Search First**: When looking for specific functionality (e.g., "auth logic"), use `cfm_search` before reading file contents.
+1.  **Search First**: When looking for specific functionality (e.g., "auth logic"), use `cfm_search` before reading file contents. This is the fastest way to locate relevant files.
+2.  **Read Header Before Full File**: Before reading any file's full content, call `cfm_read` with the file path to check its header first. Use `intent` and `exports` to decide if you actually need to read the full file.
 3.  **Maintain Headers**: 
     - When creating a new file, you MUST generate a valid CFM header (intent, role, exports).
     - When significantly modifying code, you MUST update the `exports` and `ai_notes` in the header using `cfm_write`.
     - KEEP `ai_notes` BRIEF. Only store permanent architectural constraints, not change logs.
 ```
+
+## 📐 The Format Standard (No Installation Required)
+
+**CFM's real power is the header format itself**, not just the MCP tools. Even without installing CFM, a manually added `/*--- ---*/` YAML header is instantly understood by **any AI assistant**.
+
+Think of it like JSDoc — you don't need a tool to benefit from it.
+
+### ⚡ 30 Seconds to Start
+
+Just add 3 lines at the top of any file:
+
+```javascript
+/*---
+intent: "Handles user login and session management"
+role: service
+---*/
+
+// your code here...
+```
+
+That's it. Any AI reading this file will now understand its purpose *without reading the code body*.
+
+### 🔧 What Do the MCP Tools Add?
+
+| Manual Header | CFM MCP Tools |
+| :--- | :--- |
+| ✅ AI can read your header | ✅ AI can **search** all headers |
+| ✅ Works without any install | ✅ **Automates** header creation & updates |
+| ❌ You maintain it by hand | ✅ Detects **drift** between headers & code |
+
+**Bottom line**: The format is the standard. The MCP tools just automate the upkeep.
 
 ## 🛠 Usage & Syntax
 
@@ -129,12 +159,12 @@ class User(BaseModel): ...
 
 When installed as an MCP server, your AI gains these super-powers:
 
-*   **`cfm_read({ directory })`**: 
-    *   Returns a high-level summary of all files (paths, intents, roles, exports) in one JSON object. 
-    *   *Best for: Initializing session context.*
-*   **`cfm_search({ query, role, domain })`**: 
-    *   Semantic search over the headers. 
-    *   *Best for: "Find where user billing is handled".*
+*   **`cfm_search({ directory, keyword, role, domain })`**: 
+    *   Semantic search over the headers. The preferred entry point for locating files.
+    *   *Best for: "Find where user billing is handled". Search first, then decide what to read.*
+*   **`cfm_read({ path })`**: 
+    *   Reads CFM headers. Pass a **file path** to read a single header, or a **directory path** to scan all files.
+    *   *Best for: Checking a file's identity before reading its full content.*
 *   **`cfm_write({ file, intent, ... })`**: 
     *   Writes or updates the header.
     *   *Best for: Creating new files or updating documentation.*

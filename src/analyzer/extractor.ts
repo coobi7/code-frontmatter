@@ -1,5 +1,22 @@
+/*---
+intent: 使用 TypeScript Compiler API 解析文件 AST，提取所有导出符号名（ESM/CJS 均支持）
+role: service
+exports:
+  - "extractExports: 从 TS/JS 文件中提取所有导出符号名列表"
+depends_on:
+  - typescript
+  - fs
+when_to_load: 修改导出提取逻辑或增加新导出模式支持时加载
+mutates_state: false
+domain: analyzer
+ai_notes: 支持 export、export default、export {}、module.exports 和 exports.xxx 五种模式。解构导出也有基本处理。
+---*/
+
 import ts from "typescript";
 import fs from "fs";
+import { extractPythonExports } from "./extractors/python.js";
+import { extractGoExports } from "./extractors/go.js";
+import { extractRustExports } from "./extractors/rust.js";
 
 /**
  * Extracts the names of all exported symbols from a TypeScript/JavaScript file.
@@ -11,9 +28,25 @@ import fs from "fs";
  * - `module.exports = ...` (returns "module.exports")
  *
  * @param filePath Absolute path to the file.
- * @returns A promise that resolves to an array of exported names.
+ * @returns A promise that resolves to an array of exported names, or null if the language is not supported.
  */
-export async function extractExports(filePath: string): Promise<string[]> {
+export async function extractExports(filePath: string): Promise<string[] | null> {
+    if (filePath.endsWith(".ts") || filePath.endsWith(".js") || filePath.endsWith(".tsx") || filePath.endsWith(".jsx") || filePath.endsWith(".mjs") || filePath.endsWith(".cjs")) {
+        return extractTypeScriptExports(filePath);
+    }
+    if (filePath.endsWith(".py")) {
+        return extractPythonExports(filePath);
+    }
+    if (filePath.endsWith(".go")) {
+        return extractGoExports(filePath);
+    }
+    if (filePath.endsWith(".rs")) {
+        return extractRustExports(filePath);
+    }
+    return null;
+}
+
+async function extractTypeScriptExports(filePath: string): Promise<string[]> {
     // Read file content
     const fileContent = fs.readFileSync(filePath, "utf-8");
 

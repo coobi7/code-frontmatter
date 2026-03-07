@@ -3,6 +3,7 @@ intent: 实现 cfm_search 工具：在索引中搜索文件，并能主动报告
 role: service
 exports:
   - "searchFrontmatter: 搜索匹配条件的 CFM 条目（含错误反馈）"
+  - "matchesQuery: 判断某个 CFM 条目是否匹配查询条件"
 depends_on:
   - ./read.js
   - ../schema.js
@@ -78,7 +79,7 @@ export async function searchFrontmatter(
  * 判断某个 CFM 条目是否匹配查询条件
  * 所有提供的条件都必须满足（AND 逻辑）
  */
-function matchesQuery(
+export function matchesQuery(
     entry: CfmEntry,
     query: { keyword?: string; role?: string; domain?: string }
 ): boolean {
@@ -102,6 +103,9 @@ function matchesQuery(
     // 关键字全文搜索
     if (query.keyword) {
         const kw = query.keyword.toLowerCase();
+        // 多词拆分：空格分隔的多个词全部必须命中（AND 逻辑）
+        const keywords = kw.split(/\s+/).filter(Boolean);
+
         const searchFields = [
             String(fm.intent ?? ""),
             String(fm.ai_notes ?? ""),
@@ -116,7 +120,10 @@ function matchesQuery(
         ];
 
         const haystack = searchFields.join(" ").toLowerCase();
-        if (!haystack.includes(kw)) {
+
+        // 每个词都必须在 haystack 中出现
+        const allMatch = keywords.every(word => haystack.includes(word));
+        if (!allMatch) {
             return false;
         }
     }

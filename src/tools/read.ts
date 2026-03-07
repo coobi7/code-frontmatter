@@ -15,6 +15,7 @@ import { join, relative, extname, basename, dirname, resolve, normalize } from "
 import { extractFrontmatter } from "../parser.js";
 import { getLanguageByExtension } from "../registry.js";
 import type { CfmEntry, ScanResult } from "../schema.js";
+import { cfmCache } from "../cache.js";
 
 /** 项目根目录的标志文件（按优先级排列） */
 const PROJECT_ROOT_MARKERS = [
@@ -210,6 +211,10 @@ export async function scanDirectory(
         ...(options.ignoreDirs ?? []),
     ]);
 
+    if (cfmCache.isRootChanged(directory)) {
+        cfmCache.clear(directory);
+    }
+
     const entries: CfmEntry[] = [];
 
     // 递归遍历
@@ -258,8 +263,16 @@ async function walkDirectory(
             if (!getLanguageByExtension(ext)) continue;
 
             const relativePath = relative(rootDir, fullPath).replace(/\\/g, "/");
-            const entry = await extractFrontmatter(fullPath, relativePath);
-            entries.push(entry);
+            const mtimeMs = itemStat.mtimeMs;
+
+            const cached = cfmCache.get(fullPath);
+            if (cached && cached.mtimeMs === mtimeMs) {
+                entries.push(cached.entry);
+            } else {
+                const entry = await extractFrontmatter(fullPath, relativePath);
+                cfmCache.set(fullPath, { entry, mtimeMs });
+                entries.push(entry);
+            }
         }
     }
 }

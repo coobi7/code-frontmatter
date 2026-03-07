@@ -40,7 +40,7 @@ async function main(): Promise<void> {
     // ─── 工具 1: cfm_read ───────────────────────────────────
     server.tool(
         "cfm_read",
-        "读取代码文件的 CFM 表头（文件的'身份证'）。\n\n关键工作流：在对代码文件执行全文阅读前，应先调用此工具检查表头。表头通常只有 5-10 行，包含 intent（用途）和 exports（导出接口），可以替代阅读 100-500 行全文来判断文件是否与当前任务相关。\n\n支持两种模式：\n- 传入单个文件路径：仅返回该文件的表头（轻量）\n- 传入目录路径：批量扫描该目录下所有文件的表头（较重，仅在需要项目全貌时使用）\n\n典型用法：先用 cfm_search 定位候选文件，再用 cfm_read 检查单个文件表头，根据 intent 和 exports 判断是否需要深入阅读全文。",
+        "读取代码文件的 CFM 表头（文件的'身份证'）。\n\n关键工作流：在对代码文件执行全文阅读前，应先调用此工具检查表头。表头通常只有 5-10 行，包含 intent（用途）和 exports（导出接口），可以替代阅读 100-500 行全文来判断文件是否与当前任务相关。\n\n支持两种模式：\n- 传入单个文件路径：仅返回该文件的表头（轻量）\n- 传入目录路径：批量扫描该目录下所有文件的表头（较重，仅在需要项目全貌时使用）。日常编码任务中，应优先使用 cfm_search 精准定位文件，而非目录扫描。\n\n典型用法：先用 cfm_search 定位候选文件，再用 cfm_read 检查单个文件表头，根据 intent 和 exports 判断是否需要深入阅读全文。",
         {
             path: z
                 .string()
@@ -113,7 +113,7 @@ async function main(): Promise<void> {
             intent: z
                 .string()
                 .max(300)
-                .describe("文件的核心用途。必须精简高效（<50字），拒绝废话。"),
+                .describe("文件的核心用途。必须精简高效（<50字），拒绝废话。核心原则：intent 应让读者不读全文就能判断'这个文件跟我的任务有没有关系'。好的 intent 包含具体业务对象和动作，如'管理地图铁路图层的数据源和样式'。差的 intent 只有泛泛分类，如'工具函数'、'数据处理'。"),
             role: z
                 .string()
                 .describe("文件角色（如 service, component, util, config, page, model, entry, example）"),
@@ -127,7 +127,7 @@ async function main(): Promise<void> {
             when_to_load: z
                 .string()
                 .optional()
-                .describe("什么场景下才需要读取此文件全文。只描述关键触发条件，保持简短。"),
+                .describe("什么场景下才需要读取此文件全文。只描述关键触发条件，保持简短。此字段是帮助 AI 快速跳过不相关文件的主力过滤器——只要你能写出 when_to_load，就应该写。"),
             mutates_state: z
                 .boolean()
                 .optional()
@@ -143,7 +143,7 @@ async function main(): Promise<void> {
             ai_notes: z
                 .string()
                 .optional()
-                .describe("给 AI 的关键技术约束或警示。必须是永久性知识（如'使用捕获阶段监听'）。严禁记录变更日志/历史/作者/日期！只保留对理解代码至关重要的信息，越短越好。"),
+                .describe("给 AI 的关键技术约束或警示。必须是永久性知识，越短越好（不超过2-3行）。优先记录：(1)踩过的坑和解决方案 (2)非显而易见的约束 (3)与直觉相反的行为。不要记录：变更日志、显而易见的技术事实、可从代码推断的信息。"),
         },
         async ({ file, intent, role, exports, depends_on, when_to_load, mutates_state, side_effects, domain, ai_notes }) => {
             try {

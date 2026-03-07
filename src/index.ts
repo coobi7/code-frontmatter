@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*---
-intent: MCP Server 入口：注册 cfm_read、cfm_write、cfm_search、cfm_register_language 四个工具和 project-summary Resource，通过 stdio 与 AI IDE 通信
+intent: MCP Server入口：注册cfm_read/write/search/register_language + project-summary
 role: entry
 exports: []
 depends_on:
@@ -143,7 +143,7 @@ async function main(): Promise<void> {
             ai_notes: z
                 .string()
                 .optional()
-                .describe("给 AI 的关键技术约束或警示。必须是永久性知识，越短越好（不超过2-3行）。优先记录：(1)踩过的坑和解决方案 (2)非显而易见的约束 (3)与直觉相反的行为。不要记录：变更日志、显而易见的技术事实、可从代码推断的信息。"),
+                .describe("给 AI 的关键技术约束或警示。必须是永久性知识，越短越好（不超过2-3行）。优先记录：(1)踩过的坑和解决方案 (2)非显而易见的约束 (3)与直觉相反的行为 (4)反复纠正超2次的问题 (5)用户强调的未来对接需求。不要记录：变更日志、显而易见的技术事实、可从代码推断的信息。"),
         },
         async ({ file, intent, role, exports, depends_on, when_to_load, mutates_state, side_effects, domain, ai_notes }) => {
             try {

@@ -13,6 +13,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { extname } from "node:path";
 import { stringify as stringifyYaml } from "yaml";
 import { getLanguageByExtension } from "../registry.js";
+import { cfmCache } from "../cache.js";
 
 /**
  * CFM 表头数据（写入时的输入）
@@ -105,6 +106,7 @@ export async function writeFrontmatter(
     // ── 写入文件 ──
     try {
         await writeFile(filePath, newContent, "utf-8");
+        cfmCache.invalidate(filePath);
     } catch {
         return {
             success: false,

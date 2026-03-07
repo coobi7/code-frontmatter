@@ -1,3 +1,18 @@
+/*---
+intent: 验证 CFM 表头 exports 与代码实际导出是否一致，检测文档腐烂（Documentation Rot）
+role: service
+exports:
+  - "ValidationResult: 验证结果接口（含 missing/stale/errors）"
+  - "validateFrontmatter: 对比 CFM exports 与实际代码导出，返回差异"
+depends_on:
+  - ./extractor.js
+  - ../parser.js
+when_to_load: 修改验证逻辑或扩展非 JS/TS 语言验证支持时加载
+mutates_state: false
+domain: analyzer
+ai_notes: "目前仅支持 JS/TS 系文件的自动验证，其他语言仅检查 CFM 存在性。CFM exports 格式为 'Name: Desc'，提取冒号前的名称作为比较键。"
+---*/
+
 import fs from "fs";
 import { extractExports } from "./extractor.js";
 import { extractFrontmatter } from "../parser.js";
@@ -52,20 +67,12 @@ export async function validateFrontmatter(filePath: string): Promise<ValidationR
         });
 
         // 2. Get exports from Code
-        // Only support JS/TS for now for auto-extraction
-        if (filePath.endsWith(".ts") || filePath.endsWith(".js") || filePath.endsWith(".tsx") || filePath.endsWith(".jsx") || filePath.endsWith(".mjs") || filePath.endsWith(".cjs")) {
-            const codeExports = await extractExports(filePath);
+        // Supports JS/TS, Python, Go, Rust
+        const codeExports = await extractExports(filePath);
+
+        if (codeExports !== null) {
 
             // 3. Compare
-
-            // specific case logic for "default":
-            // if code exports "default", and CFM has "default" or file role is "component" (often default exported), maybe loose match?
-            // Let's stick to strict name matching for now.
-
-            // specific case logic for "module.exports":
-            // if code exports "module.exports", CFM might say "Name" (if it exports a single object).
-            // This is tricky. For now, let's treat "module.exports" as a special token that matches anything OR specific handling.
-            // ACTUALLY, simplicity first: Strict match.
 
             const cfmSet = new Set(cfmExports);
             const codeSet = new Set(codeExports);
@@ -73,8 +80,6 @@ export async function validateFrontmatter(filePath: string): Promise<ValidationR
             // Find Missing (In Code but NOT in CFM)
             codeExports.forEach(e => {
                 if (!cfmSet.has(e)) {
-                    // If code has "default", and CFM has main exported thing, it's a common pattern mismatch.
-                    // But we want to enforce accuracy.
                     result.missing.push(e);
                 }
             });

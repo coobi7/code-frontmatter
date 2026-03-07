@@ -3,6 +3,7 @@ intent: 实现 cfm_search 工具：在索引中搜索文件，并能主动报告
 role: service
 exports:
   - "searchFrontmatter: 搜索匹配条件的 CFM 条目（含错误反馈）"
+  - "matchesQuery: 判断某个 CFM 条目是否匹配查询条件"
 depends_on:
   - ./read.js
   - ../schema.js

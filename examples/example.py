@@ -1,15 +1,16 @@
 #---
-# intent: "示例文件：展示如何在 Python 文件中使用 Code Frontmatter 表头"
+# intent: 示例文件：展示如何在 Python 文件中使用 Code Frontmatter 表头
 # role: example
 # exports:
 #   - "fetch_user: 根据 ID 查询用户信息"
 #   - "create_user: 创建新用户并返回用户对象"
-# depends_on: ["database.py"]
-# when_to_load: "需要查看 CFM 表头在 Python 文件中的格式示例时加载"
+#   - "User: 用户信息数据模型"
+# depends_on:
+#   - database.py
+# when_to_load: 需要查看 CFM 表头在 Python 文件中的格式示例时加载
 # mutates_state: true
-# ai_notes: "这是一个纯演示文件，不包含任何实际业务逻辑"
+# ai_notes: 这是一个纯演示文件，不包含任何实际业务逻辑
 #---
-
 from dataclasses import dataclass
 from typing import Optional
 
